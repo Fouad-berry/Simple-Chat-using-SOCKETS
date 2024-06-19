@@ -10,6 +10,8 @@ Creer un fichier app.js et on va creer un script "start" dnas package.json :
 
 npm run start
 
+npm i cors
+
 Mise en place du ront dans chat-front
 
 Installation de toutes ces commandes
