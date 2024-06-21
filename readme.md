@@ -1,25 +1,23 @@
-Installation command during the project
+On initialise dans le dossier chat-backend un projet NPM et on y installe
+express, socket.io cors et nodemon
 
-**Install all thos command on this repository : chat-backend
-npm init -y
-npm i express socket.io cors nodemon
+  npm init -y
+  npm i express socket.io cors nodemon
 
-Creer un fichier app.js et on va creer un script "start" dnas package.json :
+Ensuite on va créer un fichier app.js et on va créer un script "start"
+dans package.json :
 
-'start' : 'nodemon app.js
+  'start' : 'nodemon app.js'
 
-npm run start
+Une fois le backend initialisé, nous allons mettre en place le front, donc,
+  dans le dossier front :
 
-npm i cors
+    npm create vite@latest
 
-Mise en place du ront dans chat-front
+Il faudra installer un projet REACT en utilisant JAVASCRIPT. Une fois le projet initialisé.
+On peut tapper les commandes suivantes :
 
-Installation de toutes ces commandes
-
- npm create vite@latest
-
- Pour lancer npm run dev
-
- npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
-
- npm install socket.io-client
+  npm install
+  npm run dev
+  npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
+  npm install socket.io-client
