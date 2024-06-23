@@ -157,3 +157,24 @@ body {
 .userList li:hover {
   background-color: #bcbcbc;
 }
+
+/* App.css */
+/* Classe pour les éléments de la liste cliquables */
+.userClickable {
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Style au survol pour les éléments de la liste */
+.userClickable:hover {
+  background-color: #e0e0e0; /* Changer le fond au survol */
+  color: #007bff; /* Changer la couleur du texte au survol */
+}
+
+/* Style pour l'élément actuellement sélectionné */
+.userClickable.active {
+  background-color: #007bff; /* Changer la couleur de fond pour l'élément sélectionné */
+  color: #ffffff; /* Changer la couleur du texte pour l'élément sélectionné */
+}

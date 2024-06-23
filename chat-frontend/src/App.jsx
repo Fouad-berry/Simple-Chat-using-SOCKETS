@@ -1,28 +1,59 @@
-import './App.css'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import './App.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import {io} from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3000');
 
 function App() {
-  // On déclare 2 states, donc, l'equivalent des variables, qui me permettront de conserver, 
-  // le name ainsi que le message
   const [name, setName] = useState('anonymous');
   const [message, setMessage] = useState('');
   const [feedback, setFeedback] = useState('');
   const [messages, setMessages] = useState([]);
+  const [privateMessages, setPrivateMessages] = useState({});
   const [userCount, setUserCount] = useState(0);
+  const [userList, setUserList] = useState([]);
+  const [activeChat, setActiveChat] = useState('All');
 
   useEffect(() => {
+    socket.emit('setUsername', name);
+
     socket.on('message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
-    })
+    });
+
+    socket.on('messageHistory', (history) => {
+      setMessages(history);
+    });
+
+    socket.on('privateMessage', (message) => {
+      const { senderId } = message;
+      setPrivateMessages((prevPrivateMessages) => {
+        const conversationKey = [senderId, socket.id].sort().join('_');
+        return {
+          ...prevPrivateMessages,
+          [conversationKey]: [...(prevPrivateMessages[conversationKey] || []), message]
+        };
+      });
+    });
+
+    socket.on('privateMessageHistory', (history) => {
+      const receiverId = activeChat;
+      const conversationKey = [receiverId, socket.id].sort().join('_');
+      setPrivateMessages((prevPrivateMessages) => ({
+        ...prevPrivateMessages,
+        [conversationKey]: history
+      }));
+    });
+
+    socket.on('updateUserList', (users) => {
+      setUserList(users);
+    });
 
     socket.on('userCount', (userTotal) => {
       setUserCount(userTotal);
-    })
+    });
 
     socket.on('typing', (user) => {
       setFeedback(`${user.name} is typing...`);
@@ -30,26 +61,29 @@ function App() {
 
     socket.on('stopTyping', () => {
       setFeedback('');
-    })
+    });
 
     return () => {
       socket.off('message');
+      socket.off('privateMessage');
+      socket.off('messageHistory');
+      socket.off('privateMessageHistory');
       socket.off('userCount');
       socket.off('typing');
       socket.off('stopTyping');
-    }
-
-  }, [messages, feedback]);
+      socket.off('updateUserList');
+    };
+  }, [messages, privateMessages, feedback, userList, activeChat]);
 
   const handleNameChange = (e) => {
-    setName(e.target.value); // Ici on prend la valeur de l'input qui vient d'etre modifiée, et on utilise SetName pour changer la valeur du name
+    setName(e.target.value);
     socket.emit('setUsername', e.target.value);
-  }
+  };
 
   const handleMessageChange = (e) => {
-    setMessage(e.target.value); // Ici on prend la valeur de l'input qui vient d'etre modifiée, et on utilise SetName pour changer la valeur du name
+    setMessage(e.target.value);
     socket.emit('typing', { name });
-  }
+  };
 
   const handleMessageSend = (e) => {
     e.preventDefault();
@@ -58,11 +92,23 @@ function App() {
       author: name,
       date: new Date().toLocaleString(),
       senderId: socket.id,
+    };
+    if (activeChat === 'All') {
+      socket.emit('message', newMessage);
+    } else {
+      socket.emit('privateMessage', {
+        receiverId: activeChat,
+        message: newMessage
+      });
     }
-    socket.emit('message', newMessage);
     setMessage('');
     socket.emit('stopTyping');
-  }
+  };
+
+  const handleUserClick = (userId) => {
+    setActiveChat(userId);
+    socket.emit('requestPrivateHistory', userId);
+  };
 
   return (
     <>
@@ -72,10 +118,15 @@ function App() {
           <div className="userList">
             <h3>Users : {userCount}</h3>
             <ul>
-              <li>All</li>
-              <li>Toto</li>
-              <li>Bob</li>
-              <li>Alice</li>
+              <li onClick={() => {
+                setActiveChat('All');
+                socket.emit('requestGeneralHistory');
+              }} className={`userClickable ${activeChat === 'All' ? 'active' : ''}`}>All</li>
+              {Object.keys(userList).map((user, index) => (
+                <li key={index} onClick={() => handleUserClick(user)} className={`userClickable ${activeChat === user ? 'active' : ''}`}>
+                  {userList[user]}
+                </li>
+              ))}
             </ul>
           </div>
           <div className="chat">
@@ -92,12 +143,21 @@ function App() {
               </span>
             </div>
             <ul className="conversation">
-              {messages.map((msg, index) => (
-                <li key={index} className={msg.senderId === socket.id ? 'messageRight' : 'messageLeft'}>
-                  <p className="message">{msg.text}</p>
-                  <span>{msg.author} - {msg.date}</span>
-                </li>
-              ))}
+              {activeChat === 'All' ? (
+                messages.map((msg, index) => (
+                  <li key={index} className={msg.senderId === socket.id ? 'messageRight' : 'messageLeft'}>
+                    <p className="message">{msg.text}</p>
+                    <span>{msg.author} - {msg.date}</span>
+                  </li>
+                ))
+              ) : (
+                (privateMessages[[activeChat, socket.id].sort().join('_')] || []).map((msg, index) => (
+                  <li key={index} className={msg.senderId === socket.id ? 'messageRight' : 'messageLeft'}>
+                    <p className="message">{msg.text}</p>
+                    <span>{msg.author} - {msg.date}</span>
+                  </li>
+                ))
+              )}
               {feedback && (
                 <li className="messageFeedback">
                   <p className="feedback">{feedback}</p>
@@ -105,26 +165,25 @@ function App() {
               )}
             </ul>
             <form className="messageForm" onSubmit={handleMessageSend}>
-              <input type="text" 
-                name="message" 
-                className='messageInput' 
+              <input type="text"
+                name="message"
+                className='messageInput'
                 value={message}
                 onKeyUp={() => {
-                  if(!message) {
+                  if (!message) {
                     socket.emit('stopTyping');
                   }
                 }}
-                onChange={handleMessageChange} 
+                onChange={handleMessageChange}
               />
               <div className="vDivider"></div>
-              <button type="submit" className='sendButton'>Send <FontAwesomeIcon icon={faPaperPlane}/></button>
+              <button type="submit" className='sendButton'>Send <FontAwesomeIcon icon={faPaperPlane} /></button>
             </form>
           </div>
         </div>
-
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
