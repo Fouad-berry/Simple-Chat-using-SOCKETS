@@ -177,7 +177,7 @@ function App() {
                 onChange={handleMessageChange}
               />
               <div className="vDivider"></div>
-              <button type="submit" className='sendButton'>Sent the message <FontAwesomeIcon icon={faPaperPlane} /></button>
+              <button type="submit" className='sendButton'>Sent <FontAwesomeIcon icon={faPaperPlane} /></button>
             </form>
           </div>
         </div>
