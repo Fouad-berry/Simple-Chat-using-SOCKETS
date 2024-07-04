@@ -112,7 +112,7 @@ function App() {
 
   return (
     <>
-      <h1 className='title'>iiChat</h1>
+      <h1 className='title'>iChat</h1>
       <div className="mainChat">
         <div className="flex">
           <div className="userList">
