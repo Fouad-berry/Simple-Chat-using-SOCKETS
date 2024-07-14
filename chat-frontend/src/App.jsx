@@ -116,7 +116,7 @@ function App() {
       <div className="mainChat">
         <div className="flex">
           <div className="userList">
-            <h3>Les Users : {userCount}</h3>
+            <h3>The Users : {userCount}</h3>
             <ul>
               <li onClick={() => {
                 setActiveChat('All');
@@ -177,7 +177,7 @@ function App() {
                 onChange={handleMessageChange}
               />
               <div className="vDivider"></div>
-              <button type="submit" className='sendButton'>Sent message <FontAwesomeIcon icon={faPaperPlane} /></button>
+              <button type="submit" className='sendButton'>Sent the message <FontAwesomeIcon icon={faPaperPlane} /></button>
             </form>
           </div>
         </div>
