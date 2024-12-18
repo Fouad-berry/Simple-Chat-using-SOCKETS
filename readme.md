@@ -21,3 +21,6 @@ On peut tapper les commandes suivantes :
   npm run dev
   npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
   npm install socket.io-client
+
+  ### Another features is coming , keep close on us
+  Thanks for the support 
