@@ -23,4 +23,4 @@ On peut tapper les commandes suivantes :
   npm install socket.io-client
 
   ### Another features is coming , keep close on us
-  Thanks for the support 
+  Thanks you for the support !
