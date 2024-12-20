@@ -24,3 +24,5 @@ On peut tapper les commandes suivantes :
 
   ### Another features is coming , keep close on us
   Thanks you for the support !
+  ## Informations for all
+  Have a nice day !!
